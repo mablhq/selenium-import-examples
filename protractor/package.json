@@ -1,0 +1,16 @@
+{
+  "name": "@mablhq/selenium-proxy-examples-protractor",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "protractor conf.js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "protractor": "^5.4.3"
+  },
+  "engines": {
+    "node": ">= 10.0.0"
+  }
+}

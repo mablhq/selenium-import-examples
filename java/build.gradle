@@ -1,0 +1,52 @@
+plugins {
+  id 'java'
+  id 'eclipse'
+  id 'idea'
+}
+
+group = 'com.mabl.example'
+ext {
+  baseVersion = '1.0.0'
+}
+
+sourceCompatibility = 8
+targetCompatibility = 8
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  testCompile group: 'junit', name: 'junit', version: '4.+'
+  testCompile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.141.59'
+}
+
+test {
+  testLogging {
+    events "failed"//,"passed", "skipped", "standardOut", "standardError"
+    showStackTraces true
+    showExceptions true
+    showCauses true
+    exceptionFormat "short"
+  }
+}
+
+task testJar(type: Jar, dependsOn: testClasses) {
+  classifier = 'tests'
+  from sourceSets.test.output
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+  classifier = 'sources'
+  from sourceSets.main.allSource
+}
+
+configurations {
+  tests
+  sources
+}
+
+artifacts {
+  tests testJar
+  sources sourcesJar
+}
