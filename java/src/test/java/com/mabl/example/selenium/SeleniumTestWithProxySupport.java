@@ -1,6 +1,17 @@
 package com.mabl.example.selenium;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import com.google.common.base.Preconditions;
+import okhttp3.ConnectionPool;
+import org.junit.After;
+import org.junit.Before;
+import org.openqa.selenium.Capabilities;
+import org.openqa.selenium.MutableCapabilities;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.remote.HttpCommandExecutor;
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.remote.http.HttpClient;
+import org.openqa.selenium.remote.internal.OkHttpClient;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -8,18 +19,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Optional;
 
-import org.junit.After;
-import org.junit.Before;
-import org.openqa.selenium.Capabilities;
-import org.openqa.selenium.MutableCapabilities;
-import org.openqa.selenium.remote.HttpCommandExecutor;
-import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.remote.http.HttpClient;
-import org.openqa.selenium.remote.internal.OkHttpClient;
-
-import com.google.common.base.Preconditions;
-
-import okhttp3.ConnectionPool;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
  * Base class for all Selenium tests that initializes/configures the web driver
@@ -28,16 +28,30 @@ import okhttp3.ConnectionPool;
 abstract public class SeleniumTestWithProxySupport {
     private static final String WEB_DRIVER_URL = "http://localhost:9515";
     private static final String MABL_CLI_PROXY = "localhost:8889";
-    protected RemoteWebDriver driver;
+    protected WebDriver driver;
+    private final boolean useProxy;
+
+    protected SeleniumTestWithProxySupport() {
+        this(true);
+    }
+
+    protected SeleniumTestWithProxySupport(final boolean useProxy) {
+        this.useProxy = useProxy;
+    }
 
     @Before
     public void setUp() {
-        driver = createRemoteDriver(WEB_DRIVER_URL, MABL_CLI_PROXY);
+        if (useProxy) {
+            driver = createRemoteDriver(WEB_DRIVER_URL, MABL_CLI_PROXY);
+        }
+        else {
+            driver = new ChromeDriver();
+        }
     }
 
     @After
     public void tearDown() {
-        Optional.ofNullable(driver).ifPresent(RemoteWebDriver::quit);
+        Optional.ofNullable(driver).ifPresent(WebDriver::quit);
     }
 
     private static RemoteWebDriver createRemoteDriver(final String url, final String proxy) {
