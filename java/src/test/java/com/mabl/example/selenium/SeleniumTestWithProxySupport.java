@@ -1,7 +1,6 @@
 package com.mabl.example.selenium;
 
 import com.google.common.base.Preconditions;
-import okhttp3.ConnectionPool;
 import org.junit.After;
 import org.junit.Before;
 import org.openqa.selenium.Capabilities;
@@ -10,16 +9,15 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.remote.HttpCommandExecutor;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.remote.http.ClientConfig;
 import org.openqa.selenium.remote.http.HttpClient;
-import org.openqa.selenium.remote.internal.OkHttpClient;
+import org.openqa.selenium.remote.http.jdk.JdkHttpClient;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Optional;
-
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
  * Base class for all Selenium tests that initializes/configures the web driver
@@ -41,6 +39,7 @@ abstract public class SeleniumTestWithProxySupport {
 
     @Before
     public void setUp() {
+        System.out.println("Java version: " + System.getProperty("java.version"));
         if (useProxy) {
             driver = createRemoteDriver(WEB_DRIVER_URL, MABL_CLI_PROXY);
         }
@@ -70,7 +69,7 @@ abstract public class SeleniumTestWithProxySupport {
     }
 
     private static class HttpClientFactory implements HttpClient.Factory {
-        private final ConnectionPool pool = new ConnectionPool();
+        private static final HttpClient.Factory backingFactory = new JdkHttpClient.Factory();
         private final Optional<String> proxy;
 
         public HttpClientFactory(final Optional<String> proxy) {
@@ -78,35 +77,13 @@ abstract public class SeleniumTestWithProxySupport {
         }
 
         @Override
-        public org.openqa.selenium.remote.http.HttpClient.Builder builder() {
-            return new Builder();
-        }
-
-        @Override
-        public void cleanupIdleClients() {
-            pool.evictAll();
-        }
-
-        private class Builder extends HttpClient.Builder {
-            public Builder() {
-                HttpClientFactory.this.proxy.map(value -> value.split(":"))
+        public HttpClient createClient(final ClientConfig config) {
+            final ClientConfig maybeProxiedConfig = HttpClientFactory.this.proxy.map(value -> value.split(":"))
                     .map(parts -> InetSocketAddress.createUnresolved(parts[0], Integer.parseInt(parts[1])))
                     .map(address -> new Proxy(Proxy.Type.HTTP, address))
-                    .ifPresent(this::proxy);
-            }
-            @Override
-            public HttpClient createClient(final URL url) {
-                okhttp3.OkHttpClient.Builder client = new okhttp3.OkHttpClient.Builder()
-                    .connectionPool(pool)
-                    .followRedirects(true)
-                    .followSslRedirects(true)
-                    .readTimeout(readTimeout.toMillis(), MILLISECONDS)
-                    .connectTimeout(connectionTimeout.toMillis(), MILLISECONDS);
-
-                Optional.ofNullable(proxy).ifPresent(client::proxy);
-
-                return new OkHttpClient(client.build(), url);
-            }
+                    .map(config::proxy)
+                    .orElse(config);
+            return backingFactory.createClient(maybeProxiedConfig);
         }
     }
 }
