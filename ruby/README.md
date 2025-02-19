@@ -11,7 +11,7 @@ $ chromedriver --port=9515
 ```
 3. Begin an import session using the mabl CLI in a separate terminal:
 ```
-$ mabl tests import --name "Ruby Import Example"
+$ mabl tests import selenium --name "Ruby Import Example"
 ```
 4. Run the test in this directory:
 ```
@@ -24,6 +24,6 @@ $ ruby test.rb
 In order to import your Selenium tests it is necessary to:
 1. Use a remote web driver process (e.g. start `chromedriver` or use Selenium Grid).
 1. Modify your test to use a Selenium proxy at `localhost:8889` (see [test.rb](test.rb#L3-L5)).
-1. Start an import session in the mabl CLI (`mabl tests import...`).
+1. Start an import session in the mabl CLI (`mabl tests import selenium...`).
 1. Run your test
 1. Save your imported test using the mabl CLI.
