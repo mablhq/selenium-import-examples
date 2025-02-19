@@ -1,5 +1,13 @@
 # Protractor
 
+## Setup
+1. Install node
+2. Install `webdriver-manager`:
+```
+$ npm i -g webdriver-manager
+$ webdriver-manager update
+```
+
 ## Running the example
 1. Start Protractor's `webdriver-manager` in a separate terminal:
 ```
