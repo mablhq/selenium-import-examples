@@ -15,7 +15,7 @@ $ webdriver-manager start
 ```
 2. Begin an import session using the mabl CLI in a separate terminal:
 ```
-$ mabl tests import --name "Protractor Import Example"
+$ mabl tests import selenium --name "Protractor Import Example"
 ```
 3. Run the tests in this directory:
 ```
@@ -34,6 +34,6 @@ webDriverProxy: 'http://localhost:8889',
 Then run your tests as you normally would with this configuration change applied:
 1. Start the Protractor webdriver manager
 1. Verify that your Protractor configuration file has `webDriverProxy: 'http://localhost:8889'` set
-1. Start an import session in the mabl CLI (`mabl tests import...`).
+1. Start an import session in the mabl CLI (`mabl tests import selenium...`).
 1. Run your test (e.g. `npm test`).
 1. Save your imported test using the mabl CLI.
